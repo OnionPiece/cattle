@@ -1,0 +1,16 @@
+compute-node-nic-precheck:
+    pre_commands: |
+        if [[ `ip l | grep -c "eth.:"` -ne 2 ]]; then
+            echo "NICs on a compute node shouldn't be less than 2 !"
+            ps -ef | grep "python start.py network" | awk '{if (NR==1)print $2}' | xargs kill -9
+            exit 1
+        fi 
+        if [[ `ip a show eth1 | grep -c "inet "` -ne 1 ]]; then
+            ls /var/run/dhclient.pid && cat /var/run/dhclient.pid | xargs kill -9
+            dhclient eth1 && ip r del default dev eth1
+        fi 
+        if [[ `ip a | awk '/ inet /{if($2!="127.0.0.1/8") print $0}' | wc -l` -ne 2 ]]; then
+            echo "Available IPs on a network node shouldn't be less than 2 !"
+            ps -ef | grep "python start.py network" | awk '{if (NR==1)print $2}' | xargs kill -9
+            exit 1
+        fi 

@@ -1,0 +1,11 @@
+neutron-fwaas:
+    conf:
+        file: /etc/neutron/vpn_agent.ini
+        options:
+            fwaas:
+                driver: neutron_fwaas.services.firewall.drivers.linux.iptables_fwaas.IptablesFwaasDriver
+                enabled: True
+    packages:
+        - python-neutron-fwaas
+    services:
+        - neutron-vpn-agent

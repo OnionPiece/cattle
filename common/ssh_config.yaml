@@ -1,0 +1,7 @@
+ssh_config:
+    conf:
+        file: /root/.ssh/config
+        type: raw
+        options: |
+            Host *.polex.io
+                StrictHostKeyChecking no

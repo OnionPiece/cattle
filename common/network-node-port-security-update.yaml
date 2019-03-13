@@ -1,0 +1,6 @@
+network-node-port-security-update:
+    packages:
+        - python-neutronclient
+    pre_commands: |
+        source /root/dev-polex-openrc
+        ip a show eth2 | awk '/ether /{print $2}' | xargs -I{} neutron port-list --mac_address={} | awk '{if(NR==4)print $2}' | xargs -I{} neutron port-update --no-security-groups --port_security_enabled=False {}

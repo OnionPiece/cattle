@@ -1,0 +1,17 @@
+nova-api:
+    database:
+        name: nova_api
+        password: password
+    pre_commands:
+        - 'su -s /bin/sh -c "nova-manage api_db sync" nova'
+        - 'su -s /bin/sh -c "nova-manage db sync" nova'
+    database:
+        name: nova_api
+        user: nova
+        password: password
+    services:
+        - openstack-nova-api.service
+        - openstack-nova-consoleauth.service
+        - openstack-nova-scheduler.service
+        - openstack-nova-conductor.service
+        - openstack-nova-novncproxy.service

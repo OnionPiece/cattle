@@ -1,0 +1,9 @@
+http:
+    conf:
+        file: /etc/httpd/conf/httpd.conf
+        sep: ' '
+        type: no_section
+        options:
+            ServerName: controller
+    packages:
+        - httpd

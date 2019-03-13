@@ -1,0 +1,53 @@
+controller:
+    - hosts
+    - ssh_config
+    - key_id_rsa_pub
+    - key_id_rsa
+    - yum
+    - db
+    - mq
+    - memcached
+    - keystone
+    - http
+    - http-wsgi
+    - create-identify-service
+    - create-admin-demo-users
+    - gen-admin-openrc
+    - gen-demo-openrc
+    - gen-alt-demo-openrc
+    - glance-api
+    - glance-registry
+    - nova
+    - nova-api
+    - neutron-ml2
+    - neutron-server
+    - heat
+
+compute:
+    - compute-node-nic-precheck
+    - hosts
+    - ssh_config
+    - key_id_rsa_pub
+    - key_id_rsa
+    - yum
+    - nova-compute
+    - neutron-agent
+    - neutron-openvswitch
+    - neutron-lbaas
+
+network:
+    - network-node-nic-precheck
+    - hosts
+    - ssh_config
+    - yum
+    - key_id_rsa_pub
+    - key_id_rsa
+    - neutron-agent
+    - neutron-metadata
+    - neutron-openvswitch
+    - neutron-dhcp
+    - neutron-vpnaas
+    - neutron-fwaas
+
+test:
+    - neutron-agent

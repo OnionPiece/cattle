@@ -1,0 +1,68 @@
+nova:
+    conf:
+        file: /etc/nova/nova.conf
+        options:
+            DEFAULT:
+                enabled_apis:
+                    - osapi_compute
+                    - metadata
+                rpc_backend: rabbit
+                auth_strategy: keystone
+                my_ip: A.B.C.D
+                use_neutron: True
+                firewall_driver: nova.virt.firewall.NoopFirewallDriver
+            api_database:
+                connection: mysql+pymysql://nova:password@controller/nova_api
+            database:
+                connection: mysql+pymysql://nova:password@controller/nova
+            oslo_messaging_rabbit:
+                rabbit_host: controller
+                rabbit_userid: openstack
+                rabbit_password: password
+            keystone_authtoken:
+                auth_uri: http://controller:5000
+                auth_url: http://controller:35357
+                memcached_servers: controller:11211
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                project_name: service
+                username: nova
+                password: password
+            vnc:
+                vncserver_listen: $my_ip
+                vncserver_proxyclient_address: $my_ip
+            glance:
+                api_servers: http://controller:9292
+            oslo_concurrency:
+                lock_path: /var/lib/nova/tmp
+            neutron:
+                url: http://controller:9696
+                auth_url: http://controller:35357
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                region_name: RegionOne
+                project_name: service
+                username: neutron
+                password: password
+                service_metadata_proxy: True
+                metadata_proxy_shared_secret: METADATA_SECRET
+    database:
+        name: nova
+        password: password
+    packages:
+        - openstack-nova-api
+        - openstack-nova-conductor
+        - openstack-nova-console
+        - openstack-nova-novncproxy
+        - openstack-nova-scheduler
+    pre_commands:
+        - 'source /root/admin_openrc'
+        - 'openstack user create --domain default --password password nova'
+        - 'openstack role add --project service --user nova admin'
+        - 'openstack service create --name nova --description "OpenStack Compute" compute'
+        - 'openstack endpoint create --region RegionOne compute public http://controller:8774/v2.1/%\(tenant_id\)s'
+        - 'openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1/%\(tenant_id\)s'
+        - 'openstack endpoint create --region RegionOne compute admin http://controller:8774/v2.1/%\(tenant_id\)s'
+        - "ip a show eth0 | awk '/ inet /{print $2}' | cut -d '/' -f 1 | xargs -I{} sed -i 's/my_ip = A.B.C.D/my_ip = {}/g' /etc/nova/nova.conf"

@@ -1,0 +1,5 @@
+* yamls under common folder
+* seperate yamls to make them battery, such as, neutron-server, neutron-vpn-agent, neutron-openvswitch-agent
+* role defination ... DONE with: controller, network, compute
+* package installation ... DONE
+* controller IP ... DONE with custom.yaml

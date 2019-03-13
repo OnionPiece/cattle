@@ -1,0 +1,20 @@
+neutron-openvswitch:
+    conf:
+        file: /etc/neutron/plugins/ml2/openvswitch_agent.ini
+        options:
+            agent:
+                tunnel_types: vxlan
+                l2_population: True
+                arp_responder: True
+            ovs:
+                local_ip: A.B.C.D
+                extension_drivers: port_security
+                enable_tunneling: True
+            securitygroup:
+                firewall_driver: neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+    packages:
+        - openstack-neutron-openvswitch
+    pre_commands:
+        - ip a show eth1 | awk '/ inet /{print $2}' | cut -d '/' -f 1 | xargs -I{} sed -i 's/local_ip = A.B.C.D/local_ip = {}/g' /etc/neutron/plugins/ml2/openvswitch_agent.ini
+    services:
+        - neutron-openvswitch-agent

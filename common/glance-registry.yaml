@@ -1,0 +1,24 @@
+glance-registry:
+    conf:
+        file: /etc/glance/glance-registry.conf
+        options:
+            database:
+                connection: mysql+pymysql://glance:password@controller/glance
+            keystone_authtoken:
+                auth_uri: http://controller:5000
+                auth_url: http://controller:35357
+                memcached_servers: controller:11211
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                project_name: service
+                username: glance
+                password: password
+            paste_deploy:
+                flavor: keystone
+    services:
+        - openstack-glance-registry
+    post_commands: |
+        source /root/admin_openrc
+        openstack image create "cirros" --file ./images/cirros-0.3.5-x86_64-disk.img \
+            --disk-format qcow2 --container-format bare --public

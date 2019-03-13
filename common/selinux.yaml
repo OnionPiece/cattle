@@ -1,0 +1,5 @@
+selinux:
+    packages:
+        - openstack-selinux
+    post_commands:
+        - 'setenforce 0'

@@ -1,0 +1,7 @@
+neutron-metadata:
+    conf:
+        file: /etc/neutron/metadata_agent.ini
+        options:
+            DEFAULT:
+                nova_metadata_ip: controller
+                metadata_proxy_shared_secret: METADATA_SECRET

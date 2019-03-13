@@ -1,0 +1,13 @@
+neutron-repo:
+    gerrit_repo:
+        name: neutron
+        branch: stable/mitaka
+    packages:
+        - python-pbr
+        - python2-oslo-db
+        - python2-oslo-config
+        - python2-oslo-messaging
+        - python2-debtcollector
+        - python2-keystoneauth1
+        - python-neutron-lib
+        - python2-pecan

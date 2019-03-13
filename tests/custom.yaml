@@ -1,0 +1,4 @@
+keystone:
+    file: ./tests/keystone.conf
+db:
+    file: ./tests/db.cnf

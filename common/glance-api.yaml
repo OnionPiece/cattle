@@ -1,0 +1,41 @@
+glance-api:
+    conf:
+        file: /etc/glance/glance-api.conf
+        options:
+            database:
+                connection: mysql+pymysql://glance:password@controller/glance
+            keystone_authtoken:
+                auth_uri: http://controller:5000
+                auth_url: http://controller:35357
+                memcached_servers: controller:11211
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                project_name: service
+                username: glance
+                password: password
+            paste_deploy:
+                flavor: keystone
+            glance_store:
+                stores:
+                    - file
+                    - http
+                default_store: file
+                filesystem_store_datadir: /var/lib/glance/images/
+    database:
+        name: glance
+        password: password
+    pre_commands:
+        - 'source /root/admin_openrc'
+        - 'openstack user create --domain default --password password glance'
+        - 'openstack role add --project service --user glance admin'
+        - 'openstack service create --name glance --description "OpenStack Image" image'
+        - 'openstack endpoint create --region RegionOne image public http://controller:9292'
+        - 'openstack endpoint create --region RegionOne image internal http://controller:9292'
+        - 'openstack endpoint create --region RegionOne image admin http://controller:9292'
+        - 'su -s /bin/sh -c "glance-manage db_sync" glance'
+        - ''
+    packages:
+        - openstack-glance
+    services:
+        - openstack-glance-api

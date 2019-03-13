@@ -1,0 +1,73 @@
+heat:
+    conf:
+        file: /etc/heat/heat.conf
+        options:
+            DEFAULT:
+                rpc_backend: rabbit
+                heat_metadata_server_url: http://controller:8000
+                heat_waitcondition_server_url: http://controller:8000/v1/waitconditio
+                stack_domain_admin: heat_domain_admin
+                stack_domain_admin_password: password
+                stack_user_domain_name: heat
+            database:
+                connection: mysql+pymysql://heat:password@controller/heat
+            oslo_messaging_rabbit:
+                rabbit_host: controller
+                rabbit_userid: openstack
+                rabbit_password: password
+            keystone_authtoken:
+                auth_uri: http://controller:5000
+                auth_url: http://controller:35357
+                memcached_servers: controller:11211
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                project_name: service
+                username: heat
+                password: password
+            trustee:
+                auth_plugin: password
+                auth_url: http://controller:35357
+                username: heat
+                password: password
+                user_domain_name: default
+            clients_keystone:
+                auth_uri: http://controller:35357
+            ec2authtoken:
+                auth_uri: http://controller:5000/v2.0
+    database:
+        name: heat
+        password: password
+    pre_commands: |
+        source /root/admin_openrc
+        openstack user create --domain default --password password heat
+        openstack role add --project service --user heat admin
+        openstack service create --name heat --description "Orchestration" orchestration
+        openstack service create --name heat-cfn --description "Orchestration" cloudformation
+        openstack endpoint create --region RegionOne orchestration public http://controller:8004/v1/%\(tenant_id\)s
+        openstack endpoint create --region RegionOne orchestration internal http://controller:8004/v1/%\(tenant_id\)s
+        openstack endpoint create --region RegionOne orchestration admin http://controller:8004/v1/%\(tenant_id\)s
+        openstack endpoint create --region RegionOne cloudformation public http://controller:8004/v1
+        openstack endpoint create --region RegionOne cloudformation internal http://controller:8004/v1
+        openstack endpoint create --region RegionOne cloudformation admin http://controller:8004/v1
+        openstack domain create --description "Stack projects and users" heat
+        openstack user create --domain heat --password password heat_domain_admin
+        openstack role add --domain heat --user-domain heat --user heat_domain_admin admin
+        openstack role create heat_stack_owner
+        openstack role add --project demo --user demo heat_stack_owner
+        openstack role add --project alt_demo --user alt_demo heat_stack_owner
+        openstack role create heat_stack_user
+        su -s /bin/sh -c "heat-manage db_sync" heat
+    packages:
+        - openstack-heat-api
+        - openstack-heat-api-cfn
+        - python-heatclient
+        - openstack-heat-common
+        - openstack-heat-api-cloudwatch
+        - python-heat-tests
+        - openstack-heat-engine
+        - openstack-glance
+    services:
+        - openstack-heat-api
+        - openstack-heat-api-cfn
+        - openstack-heat-engine

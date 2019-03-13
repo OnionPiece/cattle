@@ -1,0 +1,10 @@
+yum:
+    conf:
+        file: /etc/yum.repos.d/YOUR_REPO.repo
+        type: raw
+        options: |
+            [eos-0.1-test]
+            name=tets
+            baseurl=http://mirrors.test.io/repo/eos-0.1/test
+            enabled=1
+            gpgcheck=0

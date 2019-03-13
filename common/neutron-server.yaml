@@ -1,0 +1,90 @@
+neutron-server:
+    conf:
+        file: /etc/neutron/neutron.conf
+        options:
+            DEFAULT:
+                core_plugin: ml2
+                service_plugins:
+                    - router
+                    - vpnaas
+                    - neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
+                    - qos
+                    - firewall
+                    - metering
+                    - neutron.services.externalip_traffic_statistics.externalip_traffic_statistics_plugin.ExternalIP_Traffic_Statistics_Plugin
+                allow_overlapping_ips: True
+                rpc_backend: rabbit
+                auth_strategy: keystone
+                notify_nova_on_port_status_changes: True
+                notify_nova_on_port_data_changes: True
+                notification_driver: messagingv2
+                dhcp_agents_per_network: 2
+                max_l3_agents_per_router: 3
+                min_l3_agents_per_router: 2
+                global_physnet_mtu: 1450
+                l3_ha: True
+                
+            database:
+                connection: mysql+pymysql://neutron:password@controller/neutron
+            oslo_messaging_rabbit:
+                rabbit_host: controller
+                rabbit_userid: openstack
+                rabbit_password: password
+            keystone_authtoken:
+                auth_uri: http://controller:5000
+                auth_url: http://controller:35357
+                memcached_servers: controller:11211
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                project_name: service
+                username: neutron
+                password: password
+            nova:
+                auth_url: http://controller:35357
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                region_name: RegionOne
+                project_name: service
+                username: nova
+                password: password
+            oslo_concurrency:
+                lock_path: $state_path/lock
+            service_providers:
+                service_provider: VPN:strongswan:neutron_vpnaas.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default
+                fw_service_provider: FIREWALL:Iptables:neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver:default
+                openvpn_service_provider: VPN:Openvpn:neutron_vpnaas.services.vpn.service_drivers.openvpn.OpenVPNDriver
+                lb_service_provider: LOADBALANCERV2:Haproxy:neutron_lbaas.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
+    database:
+        name: neutron
+        password: password
+    pre_commands: |
+        source /root/admin_openrc
+        openstack user create --domain default --password password neutron
+        openstack role add --project service --user neutron admin
+        openstack service create --name neutron --description "OpenStack Networking" network
+        openstack endpoint create --region RegionOne network public http://controller:9696
+        openstack endpoint create --region RegionOne network internal http://controller:9696
+        openstack endpoint create --region RegionOne network admin http://controller:9696
+        ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+        su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
+          --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+        sed -i 's/^fw_service_provider = /service_provider = /g' /etc/neutron/neutron.conf
+        sed -i 's/^openvpn_service_provider = /service_provider = /g' /etc/neutron/neutron.conf
+        sed -i 's/^lb_service_provider = /service_provider = /g' /etc/neutron/neutron.conf
+    packages:
+        - python-neutron
+        - python-neutron-lib
+        - openstack-neutron
+        - openstack-neutron-ml2
+        - openstack-neutron-common
+        - python-neutron-fwaas
+        - openstack-neutron-fwaas
+        - python-m2ext
+        - python-neutron-lbaas
+        - openstack-neutron-lbaas
+        - python-neutron-vpnaas
+        - openstack-neutron-vpnaas
+    services:
+        - neutron-server

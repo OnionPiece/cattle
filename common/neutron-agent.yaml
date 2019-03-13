@@ -1,0 +1,24 @@
+neutron-agent:
+    conf:
+        file: /etc/neutron/neutron.conf
+        options:
+            DEFAULT:
+                rpc_backend: rabbit
+                auth_strategy: keystone
+                control_exchange: neutron
+                notification_driver: messagingv2
+            agent:
+                root_helper: 'sudo neutron-rootwrap /etc/neutron/rootwrap.conf'
+                root_helper_daemon: 'sudo neutron-rootwrap-daemon /etc/neutron/rootwrap.conf'
+            oslo_messaging_rabbit:
+                rabbit_host: controller
+                rabbit_userid: openstack
+                rabbit_password: password
+            oslo_concurrency:
+                lock_path: $state_path/lock
+    packages:
+        - python-neutron
+        - python-neutron-lib
+        - openstack-neutron
+        - openstack-neutron-ml2
+        - openstack-neutron-comnon

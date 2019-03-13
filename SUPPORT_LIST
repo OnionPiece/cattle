@@ -1,0 +1,8 @@
+keystone
+glance
+nova
+neutron
+neutron-fwaas
+neutron-vpnaas
+neutron-lbaas
+heat

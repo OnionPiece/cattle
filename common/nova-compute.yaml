@@ -1,0 +1,55 @@
+nova-compute:
+    conf:
+        file: /etc/nova/nova.conf
+        options:
+            DEFAULT:
+                rpc_backend: rabbit
+                auth_strategy: keystone
+                my_ip: A.B.C.D
+                use_neutron: True
+                firewall_driver: nova.virt.firewall.NoopFirewallDriver
+            oslo_messaging_rabbit:
+                rabbit_host: controller
+                rabbit_userid: openstack
+                rabbit_password: password
+            keystone_authtoken:
+                auth_uri: http://controller:5000
+                auth_url: http://controller:35357
+                memcached_servers: controller:11211
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                project_name: service
+                username: nova
+                password: password
+            vnc:
+                enabled: True
+                vncserver_listen: 0.0.0.0
+                vncserver_proxyclient_address: $my_ip
+                novncproxy_base_url: http://controller:6080/vnc_auto.html
+            glance:
+                api_servers: http://controller:9292
+            oslo_concurrency:
+                lock_path: /var/lib/nova/tmp
+            neutron:
+                url: http://controller:9696
+                auth_url: http://controller:35357
+                auth_type: password
+                project_domain_name: default
+                user_domain_name: default
+                region_name: RegionOne
+                project_name: service
+                username: neutron
+                password: password
+                service_metadata_proxy: True
+                metadata_proxy_shared_secret: METADATA_SECRET
+            libvirt:
+                virt_type: qemu
+    packages:
+        - python-nova
+        - openstack-nova-compute
+    pre_commands: | 
+        ip a show eth0 | awk '/ inet /{print $2}' | cut -d '/' -f 1 | xargs -I{} sed -i 's/my_ip = A.B.C.D/my_ip = {}/g' /etc/nova/nova.conf
+    services:
+        - libvirtd
+        - openstack-nova-compute

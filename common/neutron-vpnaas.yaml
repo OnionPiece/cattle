@@ -1,0 +1,28 @@
+neutron-vpnaas:
+    conf:
+        file: /etc/neutron/vpn_agent.ini
+        options:
+            DEFAULT:
+                interface_driver: neutron.agent.linux.interface.OVSInterfaceDriver
+            strongswan:
+                default_config_area: /usr/share/strongswan/templates/config/strongswan.d
+            vpnagent:
+                vpn_device_driver:
+                    - neutron_vpnaas.services.vpn.device_drivers.libreswan_ipsec.LibreSwanDriver
+                    - neutron_vpnaas.services.vpn.device_drivers.openvpn.OpenVPNDriver
+    packages:
+        - python-swiftclient
+        - python-neutron-vpnaas
+        - openstack-neutron-vpnaas
+    pre_commands: |
+        ovs-vsctl add-br br-ex
+        ovs-vsctl add-port br-ex eth2
+        ip l show eth2 | awk '/ether/{print $2}' | xargs -I{} ovs-vsctl set bridge br-ex other_config:hwaddr=\"{}\"
+        ip l set br-ex up
+        ip a show eth2 | awk '/ inet /{print $2}' | xargs -I{} ip a add {} dev br-ex
+        ip a show eth2 | awk '/ inet /{print $2}' | xargs -I{} ip a del {} dev eth2
+        lsmod | grep ifb || modprobe ifb
+        sysctl net.ipv4.conf.all.rp_filter=0
+        sysctl net.ipv4.conf.all.forwarding=1
+    services:
+        - neutron-vpn-agent

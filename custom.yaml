@@ -1,0 +1,13 @@
+hosts:
+    conf:
+        file: /etc/hosts
+        type: raw
+        options: |
+            127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4
+            ::1 localhost localhost.localdomain localhost6 localhost6.localdomain6
+            192.168.1.  controller
+
+gerrit:
+    user_name: not_pass_test
+    use_repos:
+        - test_no_repo

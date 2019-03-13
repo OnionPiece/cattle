@@ -1,0 +1,8 @@
+mq:
+    packages:
+        - rabbitmq-server
+    services:
+        - rabbitmq-server
+    post_commands:
+        - rabbitmqctl add_user openstack password
+        - rabbitmqctl set_permissions openstack ".*" ".*" ".*"

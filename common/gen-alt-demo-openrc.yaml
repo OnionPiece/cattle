@@ -1,0 +1,16 @@
+gen-alt-demo-openrc:
+    conf:
+        file: /root/alt_demo_openrc
+        type: raw
+        options: |
+            #!/bin/bash
+            unset OS_PROJECT_DOMAIN_ID
+            unset OS_USER_DOMAIN_ID
+            export OS_PROJECT_DOMAIN_NAME=default
+            export OS_USER_DOMAIN_NAME=default
+            export OS_PROJECT_NAME=alt_demo
+            export OS_USERNAME=alt_demo
+            export OS_PASSWORD=alt_demo
+            export OS_AUTH_URL=http://controller:5000/v3
+            export OS_IDENTITY_API_VERSION=3
+            export OS_IMAGE_API_VERSION=2

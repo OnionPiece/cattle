@@ -1,0 +1,6 @@
+mq:
+    packages:
+        - memcached
+        - python-memcached
+    services:
+        - memcached

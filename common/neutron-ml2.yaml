@@ -1,0 +1,22 @@
+neutron-ml2:
+    conf:
+        file: /etc/neutron/plugins/ml2/ml2_conf.ini
+        options:
+            ml2:
+                type_drivers:
+                    - vxlan
+                    - flat
+                    - vlan
+                tenant_network_types: vxlan
+                mechanism_drivers:
+                    - openvswitch
+                    - l2population
+                extension_drivers:
+                    - port_security
+                    - qos
+            ml2_type_vxlan:
+                vni_ranges: 1:1000
+            securitygroup:
+                enable_ipset: True
+    packages:
+        - openstack-neutron-ml2

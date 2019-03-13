@@ -1,0 +1,18 @@
+keystone:
+    conf:
+        file: /etc/keystone/keystone.conf
+        options:
+            DEFAULT:
+                admin_token: 294a4c8a8a475f9b9836
+            database:
+                connection: mysql+pymysql://keystone:password@controller/keystone
+            token:
+                provider: uuid 
+    database:
+        name: keystone
+        password: password
+    packages:
+        - openstack-keystone
+    pre_commands:
+        - 'su -s /bin/sh -c "keystone-manage db_sync" keystone'
+        - 'keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone'
